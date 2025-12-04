@@ -246,7 +246,7 @@ class KlineData:
                         s.symbol,
                         g.bucket
                     FROM symbol_list s
-                    CROSS JOIN generate_series(TIMESTAMP ?, TIMESTAMP ?, {interval_literal}) AS g(bucket)
+                    CROSS JOIN generate_series(CAST(? AS TIMESTAMP), CAST(? AS TIMESTAMP), {interval_literal}) AS g(bucket)
                 ),
                 final AS (
                     SELECT
@@ -256,13 +256,9 @@ class KlineData:
                         a.high,
                         a.low,
                         a.close,
-                        a.volume,
-                        a.trades,
-                        a.turnover,
-                        a.homeNotional,
-                        a.foreignNotional,
-                        a.vwap,
-                        a.lastSize
+                        a.volume
+                        {', a.trades' if columns in ('ohlcv', 'full') else ''}
+                        {', a.turnover, a.homeNotional, a.foreignNotional, a.vwap, a.lastSize' if columns == 'full' else ''}
                     FROM grid g
                     LEFT JOIN agg a
                       ON a.symbol = g.symbol AND a.bucket = g.bucket
