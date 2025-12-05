@@ -65,6 +65,24 @@ def _interval_to_duckdb(interval: str) -> str:
     return mapping[m]
 
 
+def _interval_to_timedelta(interval: str) -> dt.timedelta:
+    """把周期字符串映射到对应的 timedelta。"""
+    m = interval.strip().lower()
+    mapping = {
+        "1m": dt.timedelta(minutes=1),
+        "5m": dt.timedelta(minutes=5),
+        "15m": dt.timedelta(minutes=15),
+        "30m": dt.timedelta(minutes=30),
+        "1h": dt.timedelta(hours=1),
+        "4h": dt.timedelta(hours=4),
+        "1d": dt.timedelta(days=1),
+        "1w": dt.timedelta(days=7),
+    }
+    if m not in mapping:
+        raise ValueError(f"Unsupported interval: {interval}")
+    return mapping[m]
+
+
 def _align_time(ts: dt.datetime, interval: str, mode: str) -> dt.datetime:
     """把时间戳对齐到指定周期的边界。"""
     ts = _parse_utc(ts)
@@ -187,10 +205,16 @@ class KlineData:
             raise ValueError("start must be before end after alignment")
 
         now_utc = dt.datetime.now(dt.timezone.utc)
-        # 避免返回未收盘的当前桶
-        end_effective = min(end_ts, now_utc)
+        # 避免返回未收盘的当前桶：若用户请求超出当前时间，则剪裁到“当前时间向下对齐后的完整周期结束”
+        safe_now_end = _align_time(now_utc, interval, "floor")
+        end_effective = min(end_ts, safe_now_end)
+        if end_effective <= start_ts:
+            raise ValueError(
+                "Effective end time is not after start; window too close to 'now'."
+            )
 
         interval_literal = _interval_to_duckdb(interval)
+        interval_delta = _interval_to_timedelta(interval)
         bucket_expr = f"time_bucket({interval_literal}, ts) AS bucket"
 
         select_cols = [
@@ -237,6 +261,8 @@ class KlineData:
         """
 
         if fill == "grid":
+            # 生成 [start_ts, end_effective) 的完整时间网格，最后一个桶起点为 end_effective - interval
+            grid_end = end_effective - interval_delta
             grid_sql = f"""
                 , symbol_list AS (
                     SELECT UNNEST(?) AS symbol
@@ -267,7 +293,7 @@ class KlineData:
             """
             sql = base_sql + grid_sql
             params = (*sym_list, _to_iso_z(start_ts), _to_iso_z(end_effective))
-            params = (*params, sym_list, _to_iso_z(start_ts), _to_iso_z(end_effective))
+            params = (*params, sym_list, _to_iso_z(start_ts), _to_iso_z(grid_end))
         else:
             sql = base_sql + " SELECT * FROM agg ORDER BY symbol, bucket"
             params = (*sym_list, _to_iso_z(start_ts), _to_iso_z(end_effective))

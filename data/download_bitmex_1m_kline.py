@@ -238,7 +238,10 @@ def insert_candles(
     symbol: str,
     candles: Iterable[dict],
 ) -> int:
-    """将一批 K 线插入 DuckDB，遇到重复 (symbol, timestamp) 时忽略。"""
+    """将一批 K 线插入 DuckDB，遇到重复 (symbol, timestamp) 时忽略。
+
+    返回值为实际新插入的条数（通过与已有表比较计算），用于更准确的日志统计。
+    """
     rows: List[Dict[str, object]] = []
     for c in candles:
         rows.append(
@@ -265,6 +268,19 @@ def insert_candles(
     df = pd.DataFrame(rows)
     # 在 DuckDB 中注册临时表
     conn.register("tmp_candles", df)
+
+    # 计算真正需要插入的新行数（排除已存在的 (symbol, timestamp)）
+    to_insert_row = conn.execute(
+        """
+        SELECT COUNT(*) AS cnt
+        FROM tmp_candles t
+        LEFT JOIN kline_1m k
+          ON k.symbol = t.symbol AND k.timestamp = t.timestamp
+        WHERE k.symbol IS NULL
+        """
+    ).fetchone()
+    to_insert = int(to_insert_row[0]) if to_insert_row is not None else 0
+
     # 通过 NOT EXISTS 避免插入重复 (symbol, timestamp) 记录
     conn.execute(
         """
@@ -284,10 +300,9 @@ def insert_candles(
         )
         """
     )
-    # 这里无法精确获取实际插入条数，返回尝试插入的条数作为近似
-    inserted = len(df)
+
     conn.unregister("tmp_candles")
-    return inserted
+    return to_insert
 
 
 def download_range_forward(
