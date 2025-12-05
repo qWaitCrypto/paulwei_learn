@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaulWei 本地 K 线终端</title>
+  <!-- 轻量图表库：优先使用本地 vendor 版本，避免外网依赖 -->
+  <script src="vendor/lightweight-charts.standalone.production.js?v=1"></script>
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <header>
+    <h1>PaulWei 本地 K 线终端（Lightweight Charts）</h1>
+  </header>
+
+  <section class="controls">
+    <div class="field">
+      <label for="symbol">品种</label>
+      <select id="symbol"></select>
+    </div>
+    <div class="field">
+      <label for="interval">周期</label>
+      <select id="interval">
+        <option value="1m">1m</option>
+        <option value="5m">5m</option>
+        <option value="15m">15m</option>
+        <option value="30m">30m</option>
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+        <option value="1d">1d</option>
+        <option value="1w">1w</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="start">开始时间 (UTC)</label>
+      <input id="start" type="datetime-local" />
+    </div>
+    <div class="field">
+      <label for="end">结束时间 (UTC)</label>
+      <input id="end" type="datetime-local" />
+    </div>
+    <div class="field">
+      <label for="initCash">初始资金</label>
+      <input id="initCash" type="number" value="100000" />
+    </div>
+    <div class="field">
+      <label for="feeRate">手续费率</label>
+      <input id="feeRate" type="number" step="0.0001" value="0.0006" />
+    </div>
+    <div class="field">
+      <label for="slipPct">滑点(比例)</label>
+      <input id="slipPct" type="number" step="0.0001" value="0.0005" />
+    </div>
+    <button id="loadBtn">加载 K 线</button>
+    <button id="loadTradesBtn">加载 Paul 成交标注</button>
+    <button id="startPracticeBtn">开始练习（随机）</button>
+    <button id="revealBtn">揭晓 Paul 成交</button>
+    <span id="practiceInfo" class="info"></span>
+  </section>
+
+  <main>
+    <div id="chart" class="chart">
+      <div class="chart-toolbar">
+        <button id="autoBtn" type="button" title="Auto: 重新自适应视图">A</button>
+        <button id="logBtn" type="button" title="Log: 切换对数坐标">L</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="controls">
+    <div class="field">
+      <label for="side">方向</label>
+      <select id="side">
+        <option value="buy">Buy</option>
+        <option value="sell">Sell</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="otype">类型</label>
+      <select id="otype">
+        <option value="market">Market</option>
+        <option value="limit">Limit</option>
+        <option value="stop">Stop</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="qty">数量</label>
+      <input id="qty" type="number" value="1000" />
+    </div>
+    <div class="field">
+      <label for="price">限价/委托价</label>
+      <input id="price" type="number" step="0.01" />
+    </div>
+    <div class="field">
+      <label for="stopPrice">止损触发价</label>
+      <input id="stopPrice" type="number" step="0.01" />
+    </div>
+    <div class="field">
+      <label for="tp">止盈价</label>
+      <input id="tp" type="number" step="0.01" />
+    </div>
+    <div class="field">
+      <label for="sl">止损价</label>
+      <input id="sl" type="number" step="0.01" />
+    </div>
+    <button id="orderBtn">下单</button>
+    <button id="advanceBtn">下一根</button>
+    <button id="advance10Btn">快进10</button>
+  </section>
+
+  <section class="panel">
+    <div class="panel-item">
+      <h3>账户状态</h3>
+      <pre id="stateBox"></pre>
+    </div>
+    <div class="panel-item">
+      <h3>挂单</h3>
+      <pre id="ordersBox"></pre>
+    </div>
+    <div class="panel-item">
+      <h3>成交(最近)</h3>
+      <pre id="fillsBox"></pre>
+    </div>
+  </section>
+
+  <section class="log">
+    <h3>日志</h3>
+    <pre id="logBox"></pre>
+  </section>
+
+  <script src="chart_core.js?v=3"></script>
+  <script src="main.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0e1116;
+  color: #e5e7eb;
+}
+header {
+  padding: 12px 16px;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+}
+h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #0b0f14;
+  border-bottom: 1px solid #1f2937;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+input, select, button {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #374151;
+  background: #111827;
+  color: #e5e7eb;
+}
+button {
+  cursor: pointer;
+  border: 1px solid #2563eb;
+  background: #1d4ed8;
+}
+button:hover {
+  background: #2563eb;
+}
+main {
+  padding: 8px 16px 0 16px;
+}
+.chart {
+  width: 100%;
+  height: 520px;
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  background: #0b0f14;
+  position: relative;
+}
+.chart-toolbar {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  gap: 6px;
+}
+.chart-toolbar button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 3px;
+}
+.chart-toolbar button.active {
+  background: #f59e0b;
+  border-color: #fbbf24;
+  color: #111827;
+}
+.info {
+  align-self: center;
+  font-size: 12px;
+  color: #9ca3af;
+}
+.panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 12px 16px;
+}
+.panel-item {
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  padding: 8px;
+  background: #0b0f14;
+}
+.panel-item h3 {
+  margin: 4px 0 8px 0;
+  font-size: 14px;
+}
+#stateBox,
+#ordersBox,
+#fillsBox {
+  margin: 0;
+  min-height: 100px;
+  max-height: 240px;
+  overflow: auto;
+  background: #0b0f14;
+  padding: 8px;
+  border: 1px solid #1f2937;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
+.log {
+  padding: 12px 16px 24px 16px;
+}
+#logBox {
+  margin: 0;
+  min-height: 80px;
+  max-height: 200px;
+  overflow: auto;
+  background: #0b0f14;
+  padding: 8px;
+  border: 1px solid #1f2937;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
